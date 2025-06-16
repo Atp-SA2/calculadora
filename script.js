@@ -1,192 +1,265 @@
-// Elementos
-const themeToggleBtn = document.getElementById("theme-toggle");
-const body = document.body;
+const display = document.getElementById('display');
+const buttons = document.querySelectorAll('button');
+const clickSound = document.getElementById('click-sound');
+const sciButtonsContainer = document.querySelector('.scientific-buttons');
+const btnThemeToggle = document.getElementById('btn-theme-toggle');
+const btnInstall = document.getElementById('btn-install');
 
-const termsOverlay = document.getElementById("terms-overlay");
-const termsText = document.getElementById("terms-text");
-const acceptBtn = document.getElementById("accept-terms");
+let currentInput = '';
+let isScientific = false;
+let deferredPrompt;
 
-const calculator = document.getElementById("calculator");
-const display = document.getElementById("display");
-const buttons = document.querySelectorAll("#buttons .btn");
-
-const explosionOverlay = document.getElementById("explosion-overlay");
-const explosionTimerEl = document.getElementById("explosion-timer");
-
-const lolTextsContainer = document.getElementById("lol-texts");
-
-const clickSound = document.getElementById("click-sound");
-
-let scientificMode = false;
-let explosionInterval = null;
-let explosionCountdown = 15;
-let lolTextsInterval = null;
-
-let currentInput = "";
-
-// Textos irritantes LoL
-const lolLines = [
-  "É melhor você dar up, senão tá morto!",
-  "Se liga, isso é solo queue, não é tutorial!",
-  "Já fez o Dragon? Tá atrasado!",
-  "Se perder essa lane, culpa é sua!",
-  "Vai basear no mid? Que noob!",
-  "Essa build é troll, não vai funcionar!",
-  "Cuidado com o gank, tá sem visão!",
-  "Sabe jogar ou só clicou na tecla?",
-  "Respira fundo, não fica tiltado!",
-  "Tá feedando muito, acorda!",
-];
-
-// --- Função tema ---
-function toggleTheme() {
-  body.classList.toggle("dark");
-  // Muda ícone
-  if (body.classList.contains("dark")) {
-    themeToggleBtn.textContent = "☀️";
-  } else {
-    themeToggleBtn.textContent = "🌙";
-  }
-}
-
-// --- Função para atualizar display no modo científico ---
-function updateDisplay() {
-  if (!scientificMode) {
-    display.value = currentInput;
-  } else {
-    // Substituir números por λ e diminuir tamanho visual (via CSS no input não dá, então só troco o texto)
-    let replaced = currentInput.replace(/[0-9]/g, "λ");
-    display.value = replaced;
-  }
-}
-
-// --- Função para tocar som ---
-function playClickSound() {
+// Função para tocar som de clique
+function playClick() {
+  if (!clickSound) return;
   clickSound.currentTime = 0;
-  clickSound.play().catch(() => {});
+  clickSound.play();
 }
 
-// --- Função limpar ---
-function clearInput() {
-  currentInput = "";
-  updateDisplay();
+// Função para atualizar display
+function updateDisplay(text) {
+  display.value = text || '0';
 }
 
-// --- Função calcular expressão ---
-function calcularExpressao() {
+// Função para calcular expressões simples e científicas
+function calculateExpression(expr) {
   try {
-    if (currentInput.trim() === "") {
-      display.value = "";
-      return;
-    }
-    // Só permitir caracteres seguros
-    const sanitized = currentInput.replace(/[^0-9+\-*/().]/g, "");
-    // Avaliar expressão
-    const result = Function(`"use strict";return (${sanitized})`)();
-    currentInput = String(result);
-    updateDisplay();
+    // Replaces símbolos para JS válido
+    expr = expr.replace(/÷/g, '/').replace(/×/g, '*').replace(/−/g, '-');
+
+    // Trata raiz quadrada: √9 => Math.sqrt(9)
+    expr = expr.replace(/√(\d+(\.\d+)?)/g, 'Math.sqrt($1)');
+
+    // Pode adicionar mais tratamentos conforme necessidade
+
+    // Usa eval com cuidado (como aqui é só para interface local)
+    return Function('"use strict";return (' + expr + ')')();
   } catch {
-    display.value = "Erro!";
+    return 'Erro';
   }
 }
 
-// --- Função raiz quadrada ---
-function raizQuadrada() {
-  try {
-    const val = parseFloat(currentInput);
-    if (isNaN(val)) {
-      display.value = "Erro!";
-      return;
-    }
-    currentInput = Math.sqrt(val).toString();
-    updateDisplay();
-  } catch {
-    display.value = "Erro!";
+// Função para calcular raiz delta (Δ = b² - 4ac)
+function calcDelta(a, b, c) {
+  return b * b - 4 * a * c;
+}
+
+// Limpar display e estado
+function clearAll() {
+  currentInput = '';
+  updateDisplay('');
+}
+
+// Backspace
+function backspace() {
+  currentInput = currentInput.slice(0, -1);
+  updateDisplay(currentInput);
+}
+
+// Adiciona caractere ao input
+function appendInput(char) {
+  currentInput += char;
+  updateDisplay(currentInput);
+}
+
+// Calcula factorial
+function factorial(n) {
+  if (n < 0) return 'Erro';
+  if (n === 0) return 1;
+  let res = 1;
+  for (let i = 1; i <= n; i++) res *= i;
+  return res;
+}
+
+// Alterna modo científico
+function toggleScientific() {
+  isScientific = !isScientific;
+  if (isScientific) {
+    sciButtonsContainer.classList.remove('hidden');
+  } else {
+    sciButtonsContainer.classList.add('hidden');
   }
 }
 
-// --- Iniciar textos irritantes ---
-function startLolTexts() {
-  let idx = 0;
-  lolTextsInterval = setInterval(() => {
-    lolTextsContainer.textContent = lolLines[idx];
-    lolTextsContainer.classList.add("show");
-    setTimeout(() => {
-      lolTextsContainer.classList.remove("show");
-    }, 7000);
-    idx++;
-    if (idx >= lolLines.length) idx = 0;
-  }, 60000); // a cada 60 segundos
+// Executa ação do botão
+function handleAction(action) {
+  playClick();
+  switch (action) {
+    case 'clear':
+      clearAll();
+      break;
+    case 'backspace':
+      backspace();
+      break;
+    case 'equals':
+      try {
+        let result = calculateExpression(currentInput);
+        if (typeof result === 'number') {
+          updateDisplay(String(result));
+          currentInput = String(result);
+        } else {
+          updateDisplay('Erro');
+          currentInput = '';
+        }
+      } catch {
+        updateDisplay('Erro');
+        currentInput = '';
+      }
+      break;
+    case 'add':
+      appendInput('+');
+      break;
+    case 'subtract':
+      appendInput('−');
+      break;
+    case 'multiply':
+      appendInput('×');
+      break;
+    case 'divide':
+      appendInput('÷');
+      break;
+    case 'dot':
+      appendInput('.');
+      break;
+    case 'sqrt':
+      appendInput('√');
+      break;
+    case 'toggle-scientific':
+      toggleScientific();
+      break;
+    case 'pow':
+      try {
+        let val = parseFloat(currentInput);
+        if (!isNaN(val)) {
+          let res = val ** 2;
+          updateDisplay(String(res));
+          currentInput = String(res);
+        }
+      } catch {}
+      break;
+    case 'pow3':
+      try {
+        let val = parseFloat(currentInput);
+        if (!isNaN(val)) {
+          let res = val ** 3;
+          updateDisplay(String(res));
+          currentInput = String(res);
+        }
+      } catch {}
+      break;
+    case 'sqrt3':
+      try {
+        let val = parseFloat(currentInput);
+        if (!isNaN(val)) {
+          let res = Math.cbrt(val);
+          updateDisplay(String(res));
+          currentInput = String(res);
+        }
+      } catch {}
+      break;
+    case 'factorial':
+      try {
+        let val = parseInt(currentInput);
+        if (!isNaN(val)) {
+          let res = factorial(val);
+          updateDisplay(String(res));
+          currentInput = String(res);
+        }
+      } catch {}
+      break;
+    case 'percent':
+      try {
+        let val = parseFloat(currentInput);
+        if (!isNaN(val)) {
+          let res = val / 100;
+          updateDisplay(String(res));
+          currentInput = String(res);
+        }
+      } catch {}
+      break;
+    case 'delta':
+      // Exemplo: calcular delta com input separado por vírgula "a,b,c"
+      let parts = currentInput.split(',');
+      if (parts.length === 3) {
+        let [a, b, c] = parts.map(Number);
+        if (![a,b,c].some(isNaN)) {
+          let d = calcDelta(a,b,c);
+          updateDisplay(String(d));
+          currentInput = String(d);
+        } else {
+          updateDisplay('Erro');
+          currentInput = '';
+        }
+      } else {
+        updateDisplay('Erro');
+        currentInput = '';
+      }
+      break;
+  }
 }
 
-// --- Iniciar timer explosão ---
-function startExplosionTimer() {
-  explosionCountdown = 15;
-  explosionTimerEl.textContent = explosionCountdown;
-  explosionOverlay.classList.remove("hidden");
-
-  explosionInterval = setInterval(() => {
-    explosionCountdown--;
-    explosionTimerEl.textContent = explosionCountdown;
-    if (explosionCountdown <= 0) {
-      clearInterval(explosionInterval);
-      explosionOverlay.classList.add("hidden");
-      alert("💥 BOOM! Seu dispositivo explodiu (não de verdade) 💥");
-    }
-  }, 1000);
-}
-
-// --- Eventos ---
-// Tema
-themeToggleBtn.addEventListener("click", () => {
-  toggleTheme();
-  playClickSound();
-});
-
-// Termos: habilitar botão aceitar só se rolar até o fim
-termsText.addEventListener("scroll", () => {
-  const scrollBottom = termsText.scrollTop + termsText.clientHeight;
-  if (scrollBottom >= termsText.scrollHeight - 5) {
-    acceptBtn.disabled = false;
-    acceptBtn.classList.add("enabled");
+// Captura clicks dos botões
+buttons.forEach(button => {
+  if (button.dataset.number) {
+    button.addEventListener('click', () => {
+      playClick();
+      appendInput(button.dataset.number);
+    });
+  } else if (button.dataset.action) {
+    button.addEventListener('click', () => {
+      handleAction(button.dataset.action);
+    });
   }
 });
 
-// Aceitar termos
-acceptBtn.addEventListener("click", () => {
-  if (!acceptBtn.disabled) {
-    termsOverlay.classList.add("hidden");
-    calculator.classList.remove("hidden");
-    startExplosionTimer();
-    startLolTexts();
+// Tema claro/escuro
+function applyTheme(theme) {
+  if (theme === 'dark') {
+    document.documentElement.style.setProperty('--bg-color', '#111');
+    document.documentElement.style.setProperty('--text-color', '#eee');
+    document.documentElement.style.setProperty('--button-bg', '#222');
+    document.documentElement.style.setProperty('--button-border', '#555');
+    document.documentElement.style.setProperty('--accent-color', '#e63946');
+    document.body.style.background = 'linear-gradient(135deg, #111, #222)';
+  } else {
+    document.documentElement.style.setProperty('--bg-color', '#fefefe');
+    document.documentElement.style.setProperty('--text-color', '#111');
+    document.documentElement.style.setProperty('--button-bg', '#ddd');
+    document.documentElement.style.setProperty('--button-border', '#aaa');
+    document.documentElement.style.setProperty('--accent-color', '#e63946');
+    document.body.style.background = 'linear-gradient(135deg, #eee, #ccc)';
   }
+}
+
+function toggleTheme() {
+  const current = localStorage.getItem('theme') || 'dark';
+  const next = current === 'dark' ? 'light' : 'dark';
+  applyTheme(next);
+  localStorage.setItem('theme', next);
+}
+
+btnThemeToggle.addEventListener('click', toggleTheme);
+
+// Aplica tema salvo ou padrão
+applyTheme(localStorage.getItem('theme') || 'dark');
+
+
+// PWA Install Button
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  btnInstall.style.display = 'block';
 });
 
-// Botões calculadora
-buttons.forEach((btn) => {
-  btn.addEventListener("click", () => {
-    playClickSound();
-
-    if (btn.id === "clear") {
-      clearInput();
-      return;
-    }
-    if (btn.id === "equals") {
-      calcularExpressao();
-      return;
-    }
-    if (btn.id === "sqrt") {
-      raizQuadrada();
-      return;
-    }
-
-    // Valores padrão
-    let val = btn.getAttribute("data-value");
-    if (val !== null) {
-      currentInput += val;
-      updateDisplay();
-    }
-  });
+btnInstall.addEventListener('click', async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const choice = await deferredPrompt.userChoice;
+  if (choice.outcome === 'accepted') {
+    console.log('Usuário aceitou a instalação');
+  } else {
+    console.log('Usuário rejeitou a instalação');
+  }
+  deferredPrompt = null;
+  btnInstall.style.display = 'none';
 });
-
-// Iniciar modo tema escuro se quiser, por padrão desativado
