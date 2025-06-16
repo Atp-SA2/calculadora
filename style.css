@@ -1,167 +1,165 @@
-/* Reset básico */
+:root {
+  --bg-color: #121212;
+  --fg-color: white;
+  --btn-bg: #2e2e2e;
+  --btn-hover: #ff4444;
+  --border-color: red;
+}
+
+body.light {
+  --bg-color: #f4f4f4;
+  --fg-color: #121212;
+  --btn-bg: #dddddd;
+  --btn-hover: #c33;
+  --border-color: darkred;
+}
+
 * {
   box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 body {
-  background: linear-gradient(135deg, #111, #222);
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-  color: white;
-  overflow: hidden;
-}
-
-/* Marca d'água vermelha no canto */
-.watermark {
-  position: fixed;
-  bottom: 10px;
-  left: 10px;
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: #e63946;
-  text-decoration: none;
-  user-select: none;
-  opacity: 0.3;
-  pointer-events: auto;
-  transition: opacity 0.3s ease;
-  z-index: 1001;
-}
-.watermark:hover {
-  opacity: 1;
-}
-
-/* Botão tema fora da calculadora */
-#btn-theme-toggle {
-  position: fixed;
-  top: 10px;
-  right: 10px;
-  background: #e63946;
-  border: none;
-  color: white;
-  font-size: 1.5rem;
-  padding: 8px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  z-index: 1001;
-  user-select: none;
-  box-shadow: 0 0 8px #e63946aa;
-}
-
-/* Botão instalar PWA */
-#btn-install {
-  position: fixed;
-  bottom: 70px;
-  right: 20px;
-  background: #e63946;
-  border: none;
-  color: white;
-  font-size: 1rem;
-  padding: 10px 14px;
-  border-radius: 6px;
-  cursor: pointer;
-  z-index: 1001;
-  box-shadow: 0 0 8px #e63946aa;
-  user-select: none;
-}
-
-/* Container da calculadora */
-.calculator-container {
-  width: 100%;
-  max-width: 360px;
-  margin: auto;
-}
-
-/* Calculadora principal */
-.calculator {
-  background: #1a1a1a;
-  border-radius: 10px;
-  box-shadow: 0 0 15px #e63946;
-  border: 2px solid #e63946;
-  padding: 20px;
+  background: linear-gradient(135deg, #0f0f0f, #1a1a1a, #0f0f0f);
+  background-size: 400% 400%;
+  animation: backgroundMove 10s infinite alternate;
+  color: var(--fg-color);
+  font-family: 'Segoe UI', sans-serif;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  margin: 0;
 }
 
-/* Display */
-.display {
-  background: #111;
-  border: 2px solid #e63946;
-  color: white;
-  font-size: 2rem;
+@keyframes backgroundMove {
+  0% {background-position: 0% 50%;}
+  100% {background-position: 100% 50%;}
+}
+
+/* Botão de tema */
+.theme-button {
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  padding: 8px 12px;
+  border: none;
+  background-color: var(--btn-bg);
+  color: var(--fg-color);
+  border-radius: 10px;
+  cursor: pointer;
+  z-index: 1000;
+}
+
+.theme-button:hover {
+  background-color: var(--btn-hover);
+}
+
+.calculator {
+  background-color: var(--bg-color);
+  border: 2px solid var(--border-color);
+  border-radius: 15px;
   padding: 15px;
-  border-radius: 6px;
-  text-align: right;
-  margin-bottom: 15px;
-  user-select: none;
+  box-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
+  width: 95%;
+  max-width: 340px;
 }
 
-/* Container dos botões */
+.display-container {
+  margin-bottom: 12px;
+}
+
+#display {
+  width: 100%;
+  height: 50px;
+  font-size: 20px;
+  padding: 8px;
+  background-color: #000;
+  border: 2px solid #444;
+  color: white;
+  text-align: right;
+  border-radius: 8px;
+}
+
 .buttons {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  grid-gap: 10px;
+  gap: 8px;
 }
 
-/* Botões */
 button {
-  background: #222;
-  border: 2px solid #555;
-  color: white;
-  font-size: 1.3rem;
-  padding: 18px 0;
-  border-radius: 6px;
+  padding: 14px;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  background-color: var(--btn-bg);
+  color: var(--fg-color);
   cursor: pointer;
-  user-select: none;
-  transition: all 0.2s ease;
-  box-shadow: inset 0 0 8px #000;
+  transition: 0.2s;
 }
 
 button:hover {
-  border-color: #e63946;
-  box-shadow: 0 0 10px #e63946;
-  background: #330000;
+  background-color: var(--btn-hover);
+  color: #fff;
 }
 
-/* Botões com ação especial (ex: limpar) */
-button[data-action] {
-  background: #2a2a2a;
-  border-color: #666;
+.extra-buttons {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
 }
 
-/* Botões modo científico, menor e inicialmente escondidos */
-.scientific-buttons {
-  grid-column: span 4;
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  grid-gap: 8px;
-  margin-top: 15px;
-  font-size: 1rem;
-}
-
-.scientific-buttons.hidden {
+.scientific {
   display: none;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.scientific button {
+  font-size: 12px;
+  padding: 10px;
+}
+
+footer.marca {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  color: red;
+  font-weight: bold;
+  font-size: 14px;
+  user-select: none;
+}
+
+footer.marca a {
+  color: red;
+  text-decoration: none;
+  margin-left: 5px;
+}
+
+footer.marca a:hover {
+  text-decoration: underline;
 }
 
 /* Responsividade */
-@media (max-width: 480px) {
-  .calculator-container {
-    max-width: 95vw;
+@media (max-width: 400px) {
+  #display {
+    font-size: 18px;
+    height: 45px;
   }
-  .display {
-    font-size: 1.5rem;
-    padding: 10px;
-  }
+
   button {
-    font-size: 1.1rem;
-    padding: 14px 0;
+    padding: 12px;
+    font-size: 14px;
   }
-  .scientific-buttons {
-    font-size: 0.85rem;
+
+  .scientific button {
+    font-size: 11px;
+    padding: 8px;
+  }
+
+  .calculator {
+    max-width: 320px;
   }
 }
