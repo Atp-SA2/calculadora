@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora</title>
+
+  <!-- Manifesto PWA -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon.png" type="image/png">
+  <meta name="theme-color" content="#ff4444">
+
+  <!-- Estilo -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Botão de Tema -->
+  <button id="toggle-theme" class="theme-button">🌗 Tema</button>
+
+  <!-- Calculadora -->
+  <div class="calculator">
+    <div class="display-container">
+      <input type="text" id="display" disabled>
+    </div>
+
+    <div class="buttons">
+      <button onclick="clearDisplay()">C</button>
+      <button onclick="appendValue('(')">(</button>
+      <button onclick="appendValue(')')">)</button>
+      <button onclick="appendValue('/')">÷</button>
+
+      <button onclick="appendValue('7')">7</button>
+      <button onclick="appendValue('8')">8</button>
+      <button onclick="appendValue('9')">9</button>
+      <button onclick="appendValue('*')">×</button>
+
+      <button onclick="appendValue('4')">4</button>
+      <button onclick="appendValue('5')">5</button>
+      <button onclick="appendValue('6')">6</button>
+      <button onclick="appendValue('-')">−</button>
+
+      <button onclick="appendValue('1')">1</button>
+      <button onclick="appendValue('2')">2</button>
+      <button onclick="appendValue('3')">3</button>
+      <button onclick="appendValue('+')">+</button>
+
+      <button onclick="appendValue('0')">0</button>
+      <button onclick="appendValue('.')">.</button>
+      <button onclick="calculate()">=</button>
+      <button onclick="calculateSqrt()">√</button>
+
+      <button onclick="calculatePow()">xʸ</button>
+      <button onclick="calculateDelta()">Δ</button>
+    </div>
+
+    <!-- Extra Buttons -->
+    <div class="extra-buttons">
+      <button id="toggle-scientific">Modo Científico</button>
+    </div>
+
+    <!-- Scientific Buttons -->
+    <div id="scientific-buttons" class="scientific">
+      <button onclick="appendValue('Math.sin(')">sen</button>
+      <button onclick="appendValue('Math.cos(')">cos</button>
+      <button onclick="appendValue('Math.tan(')">tan</button>
+      <button onclick="appendValue('Math.log10(')">log</button>
+      <button onclick="appendValue('Math.E')">e</button>
+      <button onclick="appendValue('Math.PI')">π</button>
+      <button onclick="appendValue('**2')">x²</button>
+      <button onclick="appendValue('1/')">1/x</button>
+    </div>
+  </div>
+
+  <!-- Marca d'água -->
+  <footer class="marca">
+    <span>Projeto Lambda</span> |
+    <a href="https://discord.gg/seuconvite" target="_blank">Servidor Discord</a>
+  </footer>
+
+  <!-- Sons -->
+  <audio id="click-sound" src="click.mp3" preload="auto"></audio>
+
+  <!-- Script Principal -->
+  <script src="script.js"></script>
+
+  <!-- Service Worker -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js')
+        .then(() => console.log('Service Worker registrado'))
+        .catch(err => console.log('Service Worker falhou:', err));
+    }
+  </script>
+
+</body>
+</html>
