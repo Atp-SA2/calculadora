@@ -3,22 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Calculadora - PRojeto Lambda</title>
-
-  <!-- Manifesto PWA -->
-  <link rel="manifest" href="manifest.json">
-  <link rel="icon" href="icon.png" type="image/png">
-  <meta name="theme-color" content="#ff4444">
-
-  <!-- Estilo -->
+  <title>Calculadora Avançada</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <!-- Botão de Tema -->
-  <button id="toggle-theme" class="theme-button">Alterar Tema</button>
+  <!-- Botão de tema fora da calculadora -->
+  <button id="toggle-theme" class="theme-button">🌗 Tema</button>
 
-  <!-- Calculadora -->
   <div class="calculator">
     <div class="display-container">
       <input type="text" id="display" disabled>
@@ -54,12 +46,10 @@
       <button onclick="calculateDelta()">Δ</button>
     </div>
 
-    <!-- Extra Buttons -->
     <div class="extra-buttons">
       <button id="toggle-scientific">Modo Científico</button>
     </div>
 
-    <!-- Scientific Buttons -->
     <div id="scientific-buttons" class="scientific">
       <button onclick="appendValue('Math.sin(')">sen</button>
       <button onclick="appendValue('Math.cos(')">cos</button>
@@ -72,26 +62,13 @@
     </div>
   </div>
 
-  <!-- Marca d'água -->
   <footer class="marca">
     <span>Projeto Lambda</span> |
-    <a href="https://discord.gg/FYZb68Xfkc" target="_blank">Servidor Discord</a>
+    <a href="https://discord.gg/seuconvite" target="_blank">Servidor Discord</a>
   </footer>
 
-  <!-- Sons -->
   <audio id="click-sound" src="click.mp3" preload="auto"></audio>
 
-  <!-- Script Principal -->
   <script src="script.js"></script>
-
-  <!-- Service Worker -->
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('service-worker.js')
-        .then(() => console.log('Service Worker registrado'))
-        .catch(err => console.log('Service Worker falhou:', err));
-    }
-  </script>
-
 </body>
 </html>
